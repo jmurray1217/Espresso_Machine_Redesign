@@ -15,11 +15,9 @@
 #define SSRPIN 5     // This is a pin number on PORTD (e.g., PD5)
 
 // **** Encoder Options ****
-#ifdef ENCODER
 #define ENCODERPINA 2 // Pins for rotary encoder
 #define ENCODERPINB 3 // Must be interrupt-capable pins
 #define DUMMYBUTTON 9
-#endif
 
 // **** SparkFun Serial LCD options ****
 #define LCDROWS 2    // How many rows your LCD has

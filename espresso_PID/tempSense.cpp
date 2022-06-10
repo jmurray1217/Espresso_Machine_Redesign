@@ -1,25 +1,21 @@
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #include "tempSense.h"
-#include "definitions.h"
 
 double latestReading = 0.0;
 
 //tempSensor DS1820B init
-void setupTempSensor()
+void setupTempSensor(double *temp)
 {
-    OneWire oneWire(ONE_WIRE_BUS);
-    DallasTemperature sensors(&oneWire);
+
 
     sensors.begin();
     sensors.requestTemperatures();
-    while (!updateTempSensor())
+    while (!updateTempSensor(temp))
     {
     } // wait until temp sensor updates
 }
 
 // Update readings
-bool updateTempSensor()
+bool updateTempSensor(double *temperature)
 {
     bool result = false;
 // call repeatedly in loop, only update after a certain time interval

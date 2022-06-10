@@ -1,3 +1,17 @@
+#include <Arduino.h>
+#include "pid.h"
+#include "encoder.h"
+#include "buzzer.h"
+#include "Quadrature.h"
+#include "definitions.h"
+#include "tempSense.h"
+
+Quadrature rotary(ENCODERPINA, ENCODERPINB);
+
+void setupEncoder();
+void updateEncoder();
+void saveTemp();
+
 enum state
 {
     IDLE,
@@ -7,3 +21,5 @@ enum state
     STEAM_READY,
     SETTINGS
 };
+
+int button1Press = 0;

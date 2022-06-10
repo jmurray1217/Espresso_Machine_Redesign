@@ -1,5 +1,6 @@
-// State machine for modes
 #include "stateMachine.h"
+
+// State machine for modes
 
 enum state setMode(enum state currentMode)
 {
@@ -15,10 +16,8 @@ enum state setMode(enum state currentMode)
     case BREW_HEAT:
     {
       saveTemp();
-      targetTemp = getSteamTargetTemp();
-      #ifdef ENCODER
-        rotary.position(targetTemp);
-      #endif
+      targetTemp = 95;
+      rotary.position(targetTemp);
       newMode = STEAM_HEAT; // Not preheated, skip brew mode, go to steam preheat
     }
     break;
@@ -27,10 +26,8 @@ enum state setMode(enum state currentMode)
     case BREW_READY:
     {
       saveTemp();
-      targetTemp = getSteamTargetTemp();
-      #ifdef ENCODER
-        rotary.position(targetTemp);  
-      #endif
+      targetTemp = 100;
+      rotary.position(targetTemp);  
       newMode = STEAM_HEAT;
     }
     break;
@@ -53,28 +50,6 @@ enum state setMode(enum state currentMode)
     }
     break;
 
-    case SETTINGS:
-    {
-      newMode = currentMode;
-      if (tmpset == 0)
-      {
-        rotary.position(getI());
-        tmpset++;
-      }
-      else if (tmpset == 1)
-      {
-        rotary.position(getD());
-        tmpset++;
-      }
-      else if (tmpset >= 2)
-      {
-        // exit
-        newMode = IDLE;
-        tmpset = 0;
-      }
-    }
-    break;
-
     // In idle mode, buttonpress
     case IDLE:
     {
@@ -82,9 +57,7 @@ enum state setMode(enum state currentMode)
       if (rotary.position() == 0)
       {
         targetTemp = readFloat(ESPRESSO_TEMP_ADDRESS); // from EEPROM. load the saved value
-        #ifdef ENCODER
           rotary.position(targetTemp);
-        #endif
         // lcd.brightness(BRIGHTVAL);
         newMode = BREW_HEAT; // Go to preheat
         tmpset++;
@@ -105,22 +78,14 @@ enum state setMode(enum state currentMode)
 
     if (newMode == IDLE)
     {
-    #ifdef ENCODER
       rotary.position(0); // If this is not set, heating will occur in "off" mode
-    #endif
       targetTemp = 0;
       //      lcd.brightness(10); // Dim the LCD
     }
 
     if (newMode != currentMode)
     {
-      if (newMode == SETTINGS)
-      {
-        rotary.minimum(0);
-        rotary.maximum(255);
-        rotary.position(getP());
-      }
-      else if (newMode == IDLE)
+      if (newMode == IDLE)
       {
         rotary.minimum(0);
         rotary.maximum(9);
@@ -161,4 +126,26 @@ enum state setMode(enum state currentMode)
   }
 
   return newMode;
+}
+
+// Initialize encoder
+void setupEncoder(){
+  rotary.minimum(0);
+  rotary.maximum(255); // Overwritten in individual states
+  rotary.position(setPoint);
+}
+
+// Update target temp with current rotary position
+void updateEncoder() {
+  setPoint = rotary.position();
+}
+
+// Save current values to respective EEPROM locations
+void saveTemp() {
+  if((brewMode == BREW_HEAT) || (brewMode == BREW_READY)){
+    setBrewTargetTemp(targetTemp);
+  }
+  else if((brewMode == STEAM_HEAT) || (brewMode == STEAM_READY)){
+    setSteamTargetTemp(targetTemp);
+  }
 }
